@@ -50,19 +50,20 @@ if($_GET["expr"]) {
 			else if ($inv_ops || $two_dots){
 				echo "Invalid Input";
 			}
+			
 			else{
+				$equ = str_replace("--","- -", $equ);
 				eval("\$ans=$equ ;");
+				echo "hehehe";
 			}
+	
 		}
 	}
 	else{
 		echo "Invalid Input";
 	}
 	
-	
-
-
-	//eval("\$ans = $equ ;");
+	eval("\$ans = $equ ;");
 
 	echo "<h2>Result</h2>";
 	//echo "Expression ".$_GET["expr"]." has been received.<br />"; 
