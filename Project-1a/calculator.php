@@ -40,23 +40,28 @@ if($_GET["expr"]) {
 	// Match the pattern
 	$basic_pattern = preg_match("/^[0-9 \.\+\-\/\*]+$/", $equ);
 	// Basic stuff
+	$has_number = preg_match("/^[0-9]+$/", $equ);
 	$begin_zero = preg_match("/^[0]+[0-9]+/", $equ); 
 	$divide_by_zero = preg_match("/\/[\s]*[0]/", $equ);
 	$zero_num = preg_match("/[ \+\-\/\*]+0[0-9]+/", $equ);
 	$inv_ops = preg_match("/[\+\-\/\*][ ]*[\+\/\*]/", $equ);
 	$two_dots = preg_match("/\.[0-9]+\./" , $equ);
+	
+	$op_begin = preg_match("/^[\+\*\/]/", $equ);
+	$op_end = preg_match("/[\+\-\*\/]$/", $equ);
+	$minus_begin = preg_match("/\- /", $equ);
 
 	$negspace = preg_match("/[\+\-\*\/][ ]*\-[ ]+[0-9]/",$equ);
 	$more_than_two_ops = preg_match("/[\+\-\*\/][ ]*[\+\-\*\/][ ]*[\+\-\*\/]/", $equ);
 	$bad_float_1 = preg_match("/[\+\-\*\/ ]\./", $equ);
-	$bad_floar_2 = preg_match("/\.[\+\-\*\/ ]/", $equ);
+	$bad_float_2 = preg_match("/\.[\+\-\*\/ ]/", $equ);
 	$bad_float_3 = preg_match("/^\./", $equ);
 	$bad_float_4 = preg_match("/\.$/", $equ);	
 
 
 	echo "<br />";
 
-	if($basic_pattern){
+	if($basic_pattern || $has_number){
 		if($zero_num || $begin_zero){
 			echo "Invalid Input: A non-zero number cannot start with zero";
 		}else{
@@ -66,8 +71,11 @@ if($_GET["expr"]) {
 			else if ($inv_ops || $two_dots || $negspace || $more_than_two_ops){
 				echo "Invalid Input: Either invalid arrangement of operators or invalid floating points";
 			}
-			else if($bad_float_1 || $bad_float_2 || $bad_float_3){
+			else if($bad_float_1 || $bad_float_2 || $bad_float_3 || $bad_float_4){
 				echo "Invalid Input: All floating point dots have to either precede or be followed by a digit";
+			}
+			else if($op_begin || $op_end || $minus_begin){
+				echo "Invalid Input: operators cannot just appear at the begin or end";
 			}		
 			else{
 				$equ = str_replace("--","- -", $equ);
@@ -78,7 +86,7 @@ if($_GET["expr"]) {
 		}
 	}			
 	else{
-	echo "Invalid Input: Input must contain only 0-9, +, -, *, / and . ";
+	echo "Invalid Input: Input must only contain numbers, and operators like+, -, *, / and dot . ";
 	}
 
 	}
