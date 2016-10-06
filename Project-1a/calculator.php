@@ -14,10 +14,18 @@
 </form> 
 
 <ul>
-	<li>Only numbers and +, -, * and / operators are allowed.</li>
-	<li>Paremthesis is not supported</li>
-</ul>
+    <li>Only numbers and +,-,* and / operators are allowed in the expression.
+    </li><li>The evaluation follows the standard operator precedence.
+    </li><li>The calculator does not support parentheses.
+    </li><li>The calculator handles invalid input "gracefully". It does not output PHP error messages.
+</li></ul>
 
+Here are some(but not limit to) reasonable test cases:
+<ol>
+  <li> A basic arithmetic operation:  3+4*5=23 </li>
+  <li> An expression with floating point or negative sign : -3.2+2*4-1/3 = 4.46666666667, 3*-2.1*2 = -12.6 </li>
+  <li> Some typos inside operation (e.g. alphabetic letter): Invalid input expression 2d4+1 </li>
+</ol>
 
 
 
