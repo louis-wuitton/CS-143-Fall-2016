@@ -33,7 +33,7 @@ Here are some(but not limit to) reasonable test cases:
 
 // about eval...
 
-if($_GET["expr"]) { 
+    if($_GET["expr"]) { 
 	// The equation itself
 	$equ = $_GET["expr"];
 
@@ -57,6 +57,7 @@ if($_GET["expr"]) {
 	$bad_float_2 = preg_match("/\.[\+\-\*\/ ]/", $equ);
 	$bad_float_3 = preg_match("/^\./", $equ);
 	$bad_float_4 = preg_match("/\.$/", $equ);	
+	$space_between_no = preg_match("/[0-9][ ]+[0-9]/", $equ);
 
 
 	echo "<br />";
@@ -66,10 +67,10 @@ if($_GET["expr"]) {
 			echo "Invalid Input: A non-zero number cannot start with zero";
 		}else{
 			if($divide_by_zero){
-				echo "Invalid Input: A number that's not zero cannot start with a zero";
+				echo "Invalid Input: You cannot divide a number by zero";
 			}
-			else if ($inv_ops || $two_dots || $negspace || $more_than_two_ops){
-				echo "Invalid Input: Either invalid arrangement of operators or invalid floating points";
+			else if ($inv_ops || $two_dots || $negspace || $more_than_two_ops || $space_between_no){
+				echo "Invalid Input: Either invalid arrangement of operators or invalid floating points or there is space at invalid position";
 			}
 			else if($bad_float_1 || $bad_float_2 || $bad_float_3 || $bad_float_4){
 				echo "Invalid Input: All floating point dots have to either precede or be followed by a digit";
