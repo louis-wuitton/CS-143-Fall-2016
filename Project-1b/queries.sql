@@ -17,3 +17,17 @@ FROM
   GROUP BY Actor.id
   HAVING COUNT(MovieActor.mid) > 1
 ) A;
+
+
+/*
+    Return the names of directors who have produced movies released after 2002
+*/
+
+SELECT CONCAT(first, ' ', last)
+FROM Director
+WHERE id IN (
+	SELECT DISTINCT did 
+	FROM Movie, MovieDirector
+	WHERE id = mid AND
+	year > 2002
+);
