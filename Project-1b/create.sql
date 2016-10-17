@@ -6,18 +6,19 @@ CREATE TABLE Movie (
 	company VARCHAR(50),
 	PRIMARY KEY(id),
 	CHECK(id > 0 AND id <= MaxMovieID(id)),
-	CHECK(year > 0 AND year < 2500)
+	CHECK(year >= 1895 AND year < 2050)
 ) ENGINE = INNODB;
 
 CREATE TABLE Actor (
 	id INT NOT NULL,
 	last VARCHAR(20),
 	first VARCHAR(20),
-	sex VARCHAR(6),
+	sex VARCHAR(6) NOT NULL,
 	dob DATE,
 	dod DATE,
 	PRIMARY KEY(id),
-	CHECK (id > 0 AND id <= MaxMovieID(id))
+	CHECK (id > 0 AND id <= MaxMovieID(id)),
+	CHECK (sex = 'Male' OR sex = 'Female')
 ) ENGINE = INNODB;
 
 CREATE TABLE Director (
@@ -67,18 +68,12 @@ CREATE TABLE Review(
 
 
 CREATE TABLE MaxPersonID(
-	id INT NOT NULL
+	id INT NOT NULL)
 ) ENGINE = INNODB;
 
 CREATE TABLE MaxMovieID(
 	id INT NOT NULL
 ) ENGINE = INNODB;
-
-
-
-
-
-
 
 
 
