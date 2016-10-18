@@ -47,11 +47,12 @@
 			echo '<td><b>' . $fieldinfo->name . '</b></td>';
 		}
 		
-		echo '<tr>';
+		/*echo '<tr>';*/
 		
 		$num_of_fields = mysqli_num_fields($rs);
 
 		while($row = mysqli_fetch_row($rs)){
+			echo '<tr>';
 			for($y=0; $y<$num_of_fields;$y++){
 				if($row[$y] == NULL){
 					echo '<td> N/A </td>';
@@ -59,9 +60,9 @@
 					echo '<td>' . $row[$y] . '</td>';
 				}
 			}
-			
+			echo '</tr>';
 		}
-		echo '</tr></table>';
+		echo '</table>';
 		mysqli_free_result($rs);	
 	}
 	mysqli_close($db);
