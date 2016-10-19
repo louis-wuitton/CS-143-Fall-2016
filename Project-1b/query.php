@@ -26,8 +26,10 @@
 	$input = $_GET["query"];
 	
 	$db = mysqli_connect('localhost', 'cs143', '', 'CS143');
-	if($mysqli->connect_errno){
-		die('Unable to connect to database [' . $db->connect_error . ']');
+	if(!$db){
+		echo "<p> Error: Unable to connect to MySQL. </p>";
+		echo "<p>Error Message: ". mysqli_connect_error(). '</p>';
+		
 	}
 
 	$rs = mysqli_query($db , $input);	
@@ -43,27 +45,32 @@
 
 
 	if($rs){
-		while($fieldinfo=mysqli_fetch_field($rs)){
-			echo '<td><b>' . $fieldinfo->name . '</b></td>';
-		}
-		
-		/*echo '<tr>';*/
-		
-		$num_of_fields = mysqli_num_fields($rs);
-
-		while($row = mysqli_fetch_row($rs)){
-			echo '<tr>';
-			for($y=0; $y<$num_of_fields;$y++){
-				if($row[$y] == NULL){
-					echo '<td> N/A </td>';
-				}else{
-					echo '<td>' . $row[$y] . '</td>';
-				}
+		if(mysqli_num_rows($rs) != 0){
+			while($fieldinfo=mysqli_fetch_field($rs)){
+				echo '<td><b>' . $fieldinfo->name . '</b></td>';
 			}
-			echo '</tr>';
+		
+			$num_of_fields = mysqli_num_fields($rs);
+		
+		
+			while($row = mysqli_fetch_row($rs)){
+				echo '<tr>';
+				for($y=0; $y<$num_of_fields;$y++){
+					if($row[$y] == NULL){
+						echo '<td> N/A </td>';
+					}else{
+						echo '<td>' . $row[$y] . '</td>';
+					}
+				}	
+				echo '</tr>';
+			}
+			echo '</table>';
+		}else{
+			echo "<p> Result is empty </p>";
 		}
-		echo '</table>';
 		mysqli_free_result($rs);	
+	}else{
+		echo '<p>' . mysqli_error($db) . '</p>';
 	}
 	mysqli_close($db);
 
