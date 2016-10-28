@@ -50,10 +50,10 @@
                 </div>
     </div>
 </nav>
-    
-    
- 
-    
+
+
+
+
 
  <footer class="row">
      <br>
@@ -61,6 +61,6 @@
     </div>
   </footer>
 </div>
-    
+
 </body>
 </html>

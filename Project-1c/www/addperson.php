@@ -50,10 +50,24 @@
                 </div>
     </div>
 </nav>
-    
-    
- 
-    
+
+  <div class="container">
+    <h1> Add a new Actor/Director</h1>
+    <div class="well bs-component">
+      <form method='post' action='submit.php' class="form-horizontal">
+          <fieldset>
+            <legend>Please enter the following </legend>
+            <div class="form-group">
+              <input type="radio" name="identity" value="actor" checked>Actor<br>
+              <input type="radio" name="identity" value="director" checked>Director<br>
+            </div>
+          </fieldset>
+      </form>
+    </div>
+  </div>
+
+
+
 
  <footer class="row">
      <br>
@@ -61,6 +75,6 @@
     </div>
   </footer>
 </div>
-    
+
 </body>
 </html>
