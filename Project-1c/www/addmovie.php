@@ -16,7 +16,7 @@
 
 <body data-spy="scroll" data-target=".navbar" data-offset="50">
 
-<nav class="navbar navbar-default navbar-fixed-top">
+<nav class="navbar navbar-default">
       <div class="container-fluid">
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
@@ -52,8 +52,73 @@
 </nav>
     
     
- 
-    
+<div class="container">
+	<h1> Add new Movie</h1>
+	<div class="well bs-component">
+	    <form method='post' action='m_submit.php' class="form-horizontal">
+	  	<center><legend>Please enter the following</legend></center>
+		<div class="form-group">
+			<label for="title" class="col-sm-4 control-label">Title</label>
+			<div class="col-sm-5 col-offset-sm-2">
+				<input type="text" class="form-control" name="title">
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="company" class="col-sm-4 control-label">Company</label>
+			<div class="col-sm-5 col-offset-sm-2">
+				<input type="text" class="form-control" name="company">
+			</div>
+		</div>
+			<div class="form-group">
+			<label for="year" class="col-sm-4 control-label">Year</label>
+			<div class="col-sm-5 col-offset-sm-2">
+				<input type="text" class="form-control" name="year">
+			</div>
+		</div>
+	        <div class="form-group">
+			<label for="title" class="col-sm-4 control-label">MPAA Rating</label>
+			<div class="col-sm-5 col-offset-sm-2">
+				<select class="form-control" name="rating">
+					<option>G</option>
+					<option>NC-17</option>
+					<option>PG</option>
+					<option>PG-13</option>
+ 					<option>R</option>
+					<option>surrendere</option>
+				</select>
+			</div>
+		</div>
+		<div class="form-group"><center>
+		<label>Genre: </label>
+		<input type="checkbox" name="genre[]" value="Action">Acton
+		<input type="checkbox" name="genre[]" value="Adult">Adult
+		<input type="checkbox" name="genre[]" value="Adventure">Adventure
+		<input type="checkbox" name="genre[]" value="Animation">Animation
+		<input type="checkbox" name="genre[]" value="Comedy">Comedy
+		<input type="checkbox" name="genre[]" value="Crime">Crime
+		<input type="checkbox" name="genre[]" value="Documentary">Documentary
+		<input type="checkbox" name="genre[]" value="Drama">Drama
+		<input type="checkbox" name="genre[]" value="Family">Family
+		<input type="checkbox" name="genre[]" value="Fantasy">Fantasy
+		<input type="checkbox" name="genre[]" value="Horror">Horror
+		<input type="checkbox" name="genre[]" value="Musical">Musical
+		<input type="checkbox" name="genre[]" value="Mystery">Mystery
+		<input type="checkbox" name="genre[]" value="Romanance">Romanance
+		<input type="checkbox" name="genre[]" value="Sci-Fi">Sci-Fi
+		<input type="checkbox" name="genre[]" value="Short">Short
+		<input type="checkbox" name="genre[]" value="Thriller">Thriller
+		<input type="checkbox" name="genre[]" value="War">War
+		<input type="checkbox" name="genre[]" value="Western">Western
+	
+		</center></div>
+		<div class="form-group">
+			<div class="col-sm-4 col-sm-offset-5">
+				<button type="submit" class="btn btn-primary">Sumbit</button>
+			</div>
+		</div>
+   	 </form>
+	</div>
+</div>
 
  <footer class="row">
      <br>
