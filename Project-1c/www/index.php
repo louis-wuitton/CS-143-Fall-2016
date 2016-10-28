@@ -32,20 +32,20 @@
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Add New Content <span class="caret"></span></a>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a href="#">Add Actor/Director</a></li>
-                                <li><a href="#">Add Movie Information</a></li>
-                                <li><a href="#">Add Movie/Actor Relation</a></li>
-                                <li><a href="#">Add Movie/Director Relation</a></li>
+                                <li><a href="addperson.php">Add Actor/Director</a></li>
+                                <li><a href="addmovie.php">Add Movie Information</a></li>
+                                <li><a href="addMRelation.php">Add Movie/Actor Relation</a></li>
+                                <li><a href="addPrelation.php">Add Movie/Director Relation</a></li>
                             </ul>
                         </li>
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Browsing<span class="caret"></span></a>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a href="#">Show Actor Information</a></li>
-                                <li><a href="#">Show Movie Information</a></li>
+                                <li><a href="show_a.php">Show Actor Information</a></li>
+                                <li><a href="show_m.php">Show Movie Information</a></li>
                             </ul>
                         </li>
-                        <li><a>Searching</a></li>
+                        <li><a href="search.php">Searching</a></li>
                     </ul>
                 </div>
     </div>
