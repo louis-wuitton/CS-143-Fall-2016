@@ -16,7 +16,7 @@
 
 <body data-spy="scroll" data-target=".navbar" data-offset="50">
 
-<nav class="navbar navbar-default navbar-fixed-top">
+<nav class="navbar navbar-default">
       <div class="container-fluid">
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
@@ -25,7 +25,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand">CS 143 Project 1C</a>
+                    <a class="navbar-brand" href="index.php">CS 143 Project 1C</a>
                 </div>
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <ul class="nav navbar-nav">
@@ -51,15 +51,28 @@
     </div>
 </nav>
     
-    
- 
-    
+<div class="container">
+<h1>Movie Information Page</h1>
+	<div class="well necomponent">
+	<form method='post' action='do_search.php' class='form-horizontal'>    
+	   <center><legend>Please Search Movie Here</legend></center>
+	   <div class="form-group">
+	   <label for="searching" class="col-sm-4 control-label">Search:</label>
+	   <div class="col-sm-5 col-offset-sm-2">
+	       <input type="text" class="form-control" name="searching">
+	   </div>
+    	   </div>
+	   <div class="form-group">
+		<div class="col-sm-4 col-sm-offset-5">
+		   <button class="btn btn-primary" type="submit" value="Submit">Click Me!</button>
+		</div>
+	   </div>
+	</form>
+	</div>
+</div> 
 
- <footer class="row">
-     <br>
-     <div class="small-12 columns"><center>COPYRIGHT © 2016 LOUIS WU & JOHN KIM</center>
-    </div>
-  </footer>
+   
+ 
 </div>
     
 </body>
