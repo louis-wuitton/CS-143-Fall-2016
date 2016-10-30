@@ -50,12 +50,12 @@
                 </div>
     </div>
 </nav>
-    
-    
+
+
 <div class="container">
 	<h1> Add new Movie</h1>
 	<div class="well bs-component">
-	    <form method='post' action='m_submit.php' class="form-horizontal">
+	    <form method='post' action='addmovie.php' class="form-horizontal">
 	  	<center><legend>Please enter the following</legend></center>
 		<div class="form-group">
 			<label for="title" class="col-sm-4 control-label">Title</label>
@@ -90,7 +90,7 @@
 		</div>
 		<div class="form-group"><center>
 		<label>Genre: </label>
-		<input type="checkbox" name="genre[]" value="Action">Acton
+		<input type="checkbox" name="genre[]" value="Action">Action
 		<input type="checkbox" name="genre[]" value="Adult">Adult
 		<input type="checkbox" name="genre[]" value="Adventure">Adventure
 		<input type="checkbox" name="genre[]" value="Animation">Animation
@@ -103,20 +103,83 @@
 		<input type="checkbox" name="genre[]" value="Horror">Horror
 		<input type="checkbox" name="genre[]" value="Musical">Musical
 		<input type="checkbox" name="genre[]" value="Mystery">Mystery
-		<input type="checkbox" name="genre[]" value="Romanance">Romanance
+		<input type="checkbox" name="genre[]" value="Romanance">Romance
 		<input type="checkbox" name="genre[]" value="Sci-Fi">Sci-Fi
 		<input type="checkbox" name="genre[]" value="Short">Short
 		<input type="checkbox" name="genre[]" value="Thriller">Thriller
 		<input type="checkbox" name="genre[]" value="War">War
 		<input type="checkbox" name="genre[]" value="Western">Western
-	
+
 		</center></div>
 		<div class="form-group">
 			<div class="col-sm-4 col-sm-offset-5">
-				<button type="submit" class="btn btn-primary">Sumbit</button>
+				<button type="submit" class="btn btn-primary">Submit</button>
 			</div>
 		</div>
    	 </form>
+
+   	 <?php
+
+	// Connect to the database
+	$db = mysqli_connect('localhost', 'cs143', '', 'CS143');
+	if(!$db) {
+		echo "<p>Error: Unable to connect to MySQL.</p>";
+		echo "<p>Error Message: ".mysqli_connect_error().'</p>';
+	}
+
+	// Get user inputs
+	$db_title = trim($_POST["title"]);
+	$db_company = trim($_POST["company"]);
+	$db_year = $_POST["year"];
+	$db_rating = $_POST["rating"];
+	$db_genre = $_POST["genre[]"];
+
+	// Get new max ID
+	$maxID_rs = mysqli_query($db, "SELECT MAX(id) FROM MaxMovieID");
+	if (!$maxID_rs) {
+		echo '<p>'.mysqli_error($db).'</p>';
+	}
+	$row = mysqli_fetch_array($maxID_rs, MYSQLI_NUM);
+	$newMaxID = $row[0] + 1;
+
+	// check user input
+	if ($db_title=="" && $db_company=="" && $db_year=="") {
+		// do nothing
+	}
+ 	else if ($db_title=="")
+ 		echo "Title can't be empty.<br />";
+ 	else if  ($db_company=="")
+ 		echo "Company can't be empty.<br />";
+ 	else if ($db_year=="" || $db_year<=1800 || $db_year>=2100)
+		echo "Please enter a valid production year.<br />";
+	else {
+		// single quotes should not ruin the string
+		$db_title = mysqli_escape_string($db_title);
+		$db_company = mysqli_escape_string($db_company);
+
+		// update the MaxMovieID
+		$update = "UPDATE MaxMovieID SET id=$newMaxID WHERE id=$maxID";
+		mysqli_query($db, $update);
+
+		// make insertion
+		$query = "INSERT INTO Movie (id, title, year, rating, company) VALUES('$newMaxID', '$db_title', '$db_year', '$db_rating', '$db_company')";
+		$rs = mysqli_query($db, $query);
+
+		// for genre
+		for($i=0; $i < count($db_genre); $i++)
+		{
+			$genreQ = "INSERT INTO MovieGenre (mid, genre) VALUES ('$newMaxID', '$db_genre[$i]')";
+			$genreRS = mysql_query($db, $genreQ);
+		}
+
+		// SUCCESS!
+		echo "New movie (ID: $newMaxID) added!";
+	}
+?>
+
+
+
+
 	</div>
 </div>
 
@@ -126,6 +189,6 @@
     </div>
   </footer>
 </div>
-    
+
 </body>
 </html>

@@ -62,7 +62,7 @@
 	      	<label class="radio-inline">
 	      	<input type="radio" name="identity" value="director">Director<br>
               	</label></center>
-	     </div>     
+	     </div>
 	     <div class="form-group">
 		 <label for="firstname" class="col-sm-3 control-label">First Name </label>
 		 <div class="col-sm-3">
@@ -80,7 +80,7 @@
 		<label class="radio-inline">
 		  <input type="radio" name="gender" value="female">Female</label>
 		</label></center>
-	     </div> 
+	     </div>
 
 	     <div class="form-group">
 	     	<label for="dateofbirth" class="col-sm-3 control-label">Date of Birth</label>
@@ -101,6 +101,73 @@
 	</form>
 	</div>
 </div>
+
+
+
+
+
+<?php
+	echo "<h1> Hello </h1>";
+	$db = mysqli_connect('localhost', 'cs143', '', 'CS143');
+	if(!$db){
+		echo "<p> Error: Unbale to connect to MySQL. </p>";
+		echo "<p> Error Message: " . mysqli_connect_error(). "</p>";
+	}
+
+	// get values by id
+	$db_identity = trim($_POST["identity"]);
+	$db_fname = trim($_POST["fname"]);
+	$db_lname = trim($_POST["lname"]);
+	$db_gender = trim($_POST["gender"]);
+	$db_dob = trim($_POST["dob"]);
+	$db_dod = trim($_POST["dod"]);
+
+	// Do Add Constraints checking
+	$DobDate = date_parse($db_dob);
+	$DodDate = date_parse($db_dod);
+
+
+
+	// Query to maxperson id
+	$MaxID = mysqli_query($db, "SELECT MAX(id) FROM MaxPersonID");
+	if(!$MaxID){
+		echo '<p>' . mysqli_error($db) . '</p>';
+	}
+
+	//Update our max id
+	$Max_Row = mysqli_fetch_array($MaxID, MYSQLI_NUM);
+	$new_MaxID = $Max_Row[0] + 1;
+
+
+
+	//When everything is correct
+
+	//The name might has single quote. e.g. Shaq O'Neal
+	$db_fname = mysqli_escape_string($db_fname);
+	$db_lname = mysqli_escape_string($db_lname);
+
+	if($db_identity == "actor"){
+		if($dbDOD=="")
+				$dbQuery = "INSERT INTO Actor (id, last, first, sex, dob, dod) VALUES('$newMaxID', '$dbLast', '$dbFirst', '$dbSex', '$dbDOB', NULL)";
+			else
+				$dbQuery = "INSERT INTO Actor (id, last, first, sex, dob, dod) VALUES('$newMaxID', '$dbLast', '$dbFirst', '$dbSex', '$dbDOB', '$dbDOD')";
+
+	}else if ($db_identity =="director"){
+		if($dbDOD=="")
+					$dbQuery = "INSERT INTO Director (id, last, first, sex, dob, dod) VALUES('$newMaxID', '$dbLast', '$dbFirst', '$dbSex', '$dbDOB', NULL)";
+				else
+					$dbQuery = "INSERT INTO Director (id, last, first, sex, dob, dod) VALUES('$newMaxID', '$dbLast', '$dbFirst', '$dbSex', '$dbDOB', '$dbDOD')";
+
+	}
+
+?>
+
+
+
+
+
+
+
 
 
 
