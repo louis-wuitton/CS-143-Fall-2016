@@ -16,7 +16,7 @@
 
 <body data-spy="scroll" data-target=".navbar" data-offset="50">
 
-<nav class="navbar navbar-default navbar-fixed-top">
+<nav class="navbar navbar-defaul">
       <div class="container-fluid">
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
@@ -50,7 +50,15 @@
                 </div>
     </div>
 </nav>
-    
+ 
+
+<div class="container">
+	<div class="jumbotron">
+		<h3> Awesome Movie Website Made By Tianyan Wu And John Kim</h3>
+		<img src="img/john.jpg" style="width:400px; height:400px">
+	      &nbsp &nbsp &nbsp	&nbsp &nbsp &nbsp &nbsp <img src="img/profile.jpg" style="width:400px; height:400px">
+	</div>
+</div>  
     
  
     
