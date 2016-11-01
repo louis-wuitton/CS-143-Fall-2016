@@ -50,18 +50,18 @@
                 </div>
     </div>
 </nav>
- 
+
 
 <div class="container">
 	<div class="jumbotron">
-		<h3> Awesome Movie Website Made By Tianyan Wu And John Kim</h3>
+		<h3>Movie Website Made By John Kim And Tianyan Wu</h3>
 		<img src="img/john.jpg" style="width:400px; height:400px">
 	      &nbsp &nbsp &nbsp	&nbsp &nbsp &nbsp &nbsp <img src="img/profile.jpg" style="width:400px; height:400px">
 	</div>
-</div>  
-    
- 
-    
+</div>
+
+
+
 
  <footer class="row">
      <br>
@@ -69,6 +69,6 @@
     </div>
   </footer>
 </div>
-    
+
 </body>
 </html>

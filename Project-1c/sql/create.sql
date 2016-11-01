@@ -5,7 +5,7 @@ CREATE TABLE Movie (
 	rating VARCHAR(10),
 	company VARCHAR(50),
 	PRIMARY KEY(id),
-	CHECK(id > 0 AND id <= MaxMovieID(id)),
+	CHECK(id > 0 AND id <= MaxMovieID(id) + 1),
 	CHECK(year >= 1895 AND year < 2050)
 ) ENGINE = INNODB;
 
@@ -17,7 +17,7 @@ CREATE TABLE Actor (
 	dob DATE,
 	dod DATE,
 	PRIMARY KEY(id),
-	CHECK (id > 0 AND id <= MaxMovieID(id)),
+	CHECK (id > 0 AND id <= MaxMovieID(id) + 1),
 	CHECK (sex = 'Male' OR sex = 'Female')
 ) ENGINE = INNODB;
 
@@ -28,13 +28,13 @@ CREATE TABLE Director (
 	dob DATE,
 	dod DATE,
 	PRIMARY KEY(id),
-	CHECK (id > 0 AND id <= MaxMovieID(id))
+	CHECK (id > 0 AND id <= MaxMovieID(id) + 1)
 ) ENGINE = INNODB;
 
 
 CREATE TABLE MovieGenre (
 	mid INT NOT NULL,
-	genre VARCHAR(20) NOT NULL, 
+	genre VARCHAR(20) NOT NULL,
 	FOREIGN KEY(mid) REFERENCES Movie(id)
 ) ENGINE = INNODB;
 
@@ -74,6 +74,3 @@ CREATE TABLE MaxPersonID(
 CREATE TABLE MaxMovieID(
 	id INT NOT NULL
 ) ENGINE = INNODB;
-
-
-

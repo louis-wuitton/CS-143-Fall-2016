@@ -50,11 +50,11 @@
                 </div>
     </div>
 </nav>
-    
+
 <div class="container">
 <h1>Movie Information Page</h1>
 	<div class="well necomponent">
-	<form method='post' action='do_search.php' class='form-horizontal'>    
+	<form method='post' action='show_m.php' class='form-horizontal'>
 	   <center><legend>Please Search Movie Here</legend></center>
 	   <div class="form-group">
 	   <label for="searching" class="col-sm-4 control-label">Search:</label>
@@ -68,12 +68,143 @@
 		</div>
 	   </div>
 	</form>
-	</div>
-</div> 
 
-   
- 
+  <?php
+      // Connect to the database
+      $db = mysqli_connect('localhost', 'cs143', '', 'CS143');
+      if(!$db) {
+        echo "<p>Error: Unable to connect to MySQL.</p>";
+        echo "<p>Error Message: ".mysqli_connect_error().'</p>';
+      }
+
+      // Select DB to use
+      mysqli_select_db("CS143", $db);
+
+      // NOTE, somehow we will have to bring SEARCH into this.
+      // For now, let the user input be ID.
+      $db_id = trim($_GET["id"]);
+      if($dbID=="")
+      {
+        echo "Please provide a valid movie ID.";
+        echo "<br/>";
+      }
+      else
+      {
+        $query = "SELECT title, year, rating, company FROM Movie WHERE id=$dbID";
+        $rs = mysqli_query($db, $query);
+
+        // get movie info
+        $row=mysqli_fetch_row($rs);
+
+        // Title, year, producer, mpaa rating
+        echo "<b>Title:</b> ".$row[0]." (".$row[1].")<br/>";
+        if($row[3] != "")
+            echo "<b>Producer:</b> ".$row[3]."<br/>";
+        else
+            echo "<b>Producer:</b> N/A<br/>";
+        echo "<b>MPAA Rating:</b> ".$row[2]."<br/>";
+        mysqli_free_result($rs);
+
+        // Director(s)... TODO: We need to show their DOB as well!!
+        echo "<b>Director(s):</b> ";
+        $query2 = "SELECT D.last, D.first FROM MovieDirector MD, Director D WHERE MD.mid=$dbID AND MD.did=D.id";
+        $rs2 = mysqli_query($db, $query2);
+        $first=true;
+        while($row2 = mysqli_fetch_assoc($rs2))
+        {
+          if(!$first) echo ", ";
+          else $first=false;
+          echo $row2["first"]." ".$row2["last"];
+        }
+        if($first) // no directors
+        {
+          echo "N/A";
+        }
+        echo "<br/>";
+        mysqli_free_result($rs2)
+
+        // Genre
+        echo "<b>Genre(s):</b> ";
+        $query3 = "SELECT genre from MovieGenre WHERE mid=$dbID";
+        $rs3 = mysqli_query($db, $query3);
+        $first=true;
+        while($row3 = mysqli_fetch_assoc($rs3))
+        {
+          if(!first) echo ", ";
+          else $first=false;
+          echo $row3["genre"];
+        }
+        if($first)
+        {
+          echo "N/A";
+        }
+        mysqli_free_result($rs3);
+        echo "<br/><br/>";
+
+        // Related Actors Portion
+        echo "<hr>";
+        echo "<h2>Related Actors</h2>";
+
+        $query4 = "SELECT MA.aid, MA.role, A.last, A. first FROM MovieActor MA, Actor A WHERE MA.mid=$dbID AND MA.aid=A.id";
+        $rs4 = mysqli_query($db, $query4);
+        while ($row4 = mysqli_fetch_assoc($rs4))
+        {	// TODO: We need a different .php file name here
+          $link = "<a href=\"showActorInfo.php?id=".$row3["aid"]."\">".$row3["first"]." ".$row3["last"]."</a>";
+          echo $link." as ".$row3["role"]."<br/>";
+        }
+        echo "<br/>";
+        mysqli_free_result($rs4);
+
+
+        // Reviews and Average Rating
+        echo "<hr>";
+        echo "<h2>User Reviews</h2>";
+        echo "<b>Average Rating:</b> ";
+        $query5 = "SELECT AVG(rating), COUNT(rating) FROM Review WHERE mid=$dbID";
+        $rs5 = mysqli_query($db, $query5);
+        $row5 = mysqli_fetch_row($rs5);
+        if($row5[0] == "")
+        {	// TODO: Will we have a dedicated addMovieComment page?
+          echo "No reviews exist!<br/><br/>";
+          echo "Be the first to <a href=\"addMovieComment.php?id=".$dbID."\">submit a review</a>!<br/><br/>";
+        }
+        else
+        {
+          $avgRating = $row5[0] + 0;
+          echo "$avgRating out of 5<br/>";
+          echo "Reviewed $row4[1] times. <a href=\"addMovieComment.php?id=".$dbID."\">Submit a review</a><br/><br/>";
+        }
+        mysqli_free_result($rs5);
+
+        // Show latest reviews first
+        $query6 = "SELECT time, name, rating, comment FROM Review WHERE mid=$dbID ORDER BY time DESC";
+        $rs6 = mysqli_query($db, $query6);
+
+        // review count
+        $count=mysql_num_rows($rs6);
+
+        // show the reviews
+        while ($row6 = mysql_fetch_assoc($rs6))
+        {
+          echo "<b>Review #".$count."</b> written on ".$row4["time"]."<br/>";
+          echo "Author: ".$row4["name"].", Rating: ".$row4["rating"]."<br/>";
+          echo "Comment: ".$row4["comment"]."<br/>";
+          echo "<br/>";
+          $count--;
+        }
+        echo "<br/>";
+        mysqli_free_result($rs6);
+      }
+      // close db connection
+      mysqli_close($db);
+?>
+
+	</div>
 </div>
-    
+
+
+
+</div>
+
 </body>
 </html>

@@ -79,12 +79,12 @@
 			<label for="title" class="col-sm-4 control-label">MPAA Rating</label>
 			<div class="col-sm-5 col-offset-sm-2">
 				<select class="form-control" name="rating">
-					<option>G</option>
-					<option>NC-17</option>
-					<option>PG</option>
-					<option>PG-13</option>
- 					<option>R</option>
-					<option>surrendere</option>
+					<option value="G">G</option>
+					<option value="NC-17">NC-17</option>
+					<option value="PG">PG</option>
+					<option value="PG-13">PG-13</option>
+ 					<option value="R">R</option>
+					<option value="surrendere">surrendere</option>
 				</select>
 			</div>
 		</div>
@@ -118,67 +118,66 @@
 		</div>
    	 </form>
 
-   	 <?php
+  <?php
+	   $db = mysqli_connect('localhost', 'cs143', '', 'CS143');
+	   if(!$db) {
+		     echo "<p>Error: Unable to connect to MySQL.</p>";
+		     echo "<p>Error Message: ".mysqli_connect_error().'</p>';
+	   }
 
-	// Connect to the database
-	$db = mysqli_connect('localhost', 'cs143', '', 'CS143');
-	if(!$db) {
-		echo "<p>Error: Unable to connect to MySQL.</p>";
-		echo "<p>Error Message: ".mysqli_connect_error().'</p>';
-	}
+	   // Get user inputs
+	   $db_title = trim($_POST["title"]);
+	   $db_company = trim($_POST["company"]);
+	   $db_year = $_POST["year"];
+	   $db_rating = $_POST["rating"];
+	   $db_genre = $_POST["genre"];
 
-	// Get user inputs
-	$db_title = trim($_POST["title"]);
-	$db_company = trim($_POST["company"]);
-	$db_year = $_POST["year"];
-	$db_rating = $_POST["rating"];
-	$db_genre = $_POST["genre[]"];
+	   if ($db_title=="" && $db_company=="" && $db_year=="") {
+		      // do nothing
+	   }else if ($db_title==""){
+ 		    echo "Title can't be empty.<br />";
+     }else if  ($db_company==""){
+ 		    echo "Company can't be empty.<br />";
+     }else if ($db_year=="" || $db_year<=1895 || $db_year>=2050){
+		    echo "Please enter a valid production year.<br />";
+	   }else {
+       // Get new max ID
+        $maxID_rs = mysqli_query($db, "SELECT MAX(id) FROM MaxMovieID");
+        if (!$maxID_rs) {
+            echo '<p>'.mysqli_error($db).'</p>';
+        }
+        $max_row = mysqli_fetch_array($maxID_rs, MYSQLI_NUM);
+        $new_MaxID = $max_row[0] + 1;
 
-	// Get new max ID
-	$maxID_rs = mysqli_query($db, "SELECT MAX(id) FROM MaxMovieID");
-	if (!$maxID_rs) {
-		echo '<p>'.mysqli_error($db).'</p>';
-	}
-	$row = mysqli_fetch_array($maxID_rs, MYSQLI_NUM);
-	$newMaxID = $row[0] + 1;
+        $db_title = mysqli_real_escape_string($db, $db_title);
+        echo "Look at the new string " . $db_title . "\n";
 
-	// check user input
-	if ($db_title=="" && $db_company=="" && $db_year=="") {
-		// do nothing
-	}
- 	else if ($db_title=="")
- 		echo "Title can't be empty.<br />";
- 	else if  ($db_company=="")
- 		echo "Company can't be empty.<br />";
- 	else if ($db_year=="" || $db_year<=1800 || $db_year>=2100)
-		echo "Please enter a valid production year.<br />";
-	else {
-		// single quotes should not ruin the string
-		$db_title = mysqli_escape_string($db_title);
-		$db_company = mysqli_escape_string($db_company);
-
-		// update the MaxMovieID
-		$update = "UPDATE MaxMovieID SET id=$newMaxID WHERE id=$maxID";
-		mysqli_query($db, $update);
-
-		// make insertion
-		$query = "INSERT INTO Movie (id, title, year, rating, company) VALUES('$newMaxID', '$db_title', '$db_year', '$db_rating', '$db_company')";
-		$rs = mysqli_query($db, $query);
-
-		// for genre
-		for($i=0; $i < count($db_genre); $i++)
-		{
-			$genreQ = "INSERT INTO MovieGenre (mid, genre) VALUES ('$newMaxID', '$db_genre[$i]')";
-			$genreRS = mysql_query($db, $genreQ);
-		}
-
-		// SUCCESS!
-		echo "New movie (ID: $newMaxID) added!";
-	}
+        $query = "INSERT INTO Movie (id, title, year, rating, company) VALUES('$new_MaxID', '$db_title', '$db_year', '$db_rating', '$db_company')";
+        $rs = mysqli_query($db, $query);
+        if(!$rs){
+           echo '<p>' . mysqli_error($db) . '</p>';
+        }else{
+           mysqli_free_result($rs);
+           $updateQuery = "UPDATE MaxMovieID SET id=$new_MaxID WHERE id=$max_row[0]";
+           $rs = mysqli_query($db, $updateQuery);
+           if(!$rs){
+              echo '<p>' . mysqli_error($db) . '</p>';
+           }else{
+             for($i=0; $i < count($db_genre); $i++)
+             {
+                  $genreQ = "INSERT INTO MovieGenre (mid, genre) VALUES ('$new_MaxID', '$db_genre[$i]')";
+                  $genreRS = mysqli_query($db, $genreQ);
+                  if(!$genreRS){
+                    echo '<p>'.mysqli_error($db).'</p>';
+                  }
+             }
+             // SUCCESS!
+             mysqli_free_result($genreRS);
+             echo "New movie (ID: $new_MaxID) added!";
+           }
+        }
+	  }
 ?>
-
-
-
 
 	</div>
 </div>

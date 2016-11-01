@@ -53,7 +53,7 @@
   <div class="container">
     <h1> Add a new Actor/Director </h1>
     <div class="well bs-component">
-      <form method="post" action="submit.php" class="form-horizontal">
+      <form method="post" action="addperson.php" class="form-horizontal">
             <center><legend>Please enter the following </legend></center>
             <div class="form-group"><center>
 	      	<label class="radio-inline">
@@ -75,10 +75,10 @@
 	     </div>
 	     <div class="form-group"><center>
 		<label class="radio-inline">
-		  <input type="radio" name="gender" value="male" checked>Male
+		  <input type="radio" name="gender" value="Male" checked>Male
 		</label>
 		<label class="radio-inline">
-		  <input type="radio" name="gender" value="female">Female</label>
+		  <input type="radio" name="gender" value="Female">Female</label>
 		</label></center>
 	     </div>
 
@@ -99,73 +99,81 @@
 		</div>
 	     </div>
 	</form>
+
+  <?php
+  	$db = mysqli_connect('localhost', 'cs143', '', 'CS143');
+  	if(!$db){
+  		echo "<p> Error: Unbale to connect to MySQL. </p>";
+  		echo "<p> Error Message: " . mysqli_connect_error(). "</p>";
+  	}
+
+  	// get values by id
+  	$db_identity = trim($_POST["identity"]);
+  	$db_fname = trim($_POST["fname"]);
+
+  	$db_lname = trim($_POST["lname"]);
+  	$db_gender = trim($_POST["gender"]);
+  	$db_dob = trim($_POST["dob"]);
+  	$db_dod = trim($_POST["dod"]);
+
+    //Now we will consider all the possible restrictions
+    if($db_fname == "" && $db_lname == "" && $db_dod == "" && $db_dob == ""){
+
+    }else if ($db_fname == "" || $db_lname == ""){
+      echo "<p> Please provde first name and last name </p>";
+    }
+    else if ($db_dob != ""){
+        if($db_dod != "" && strtotime($db_dod) < strtotime($db_dob)){
+          echo "<p> The date of death date cannot be smaller than date of birth date </p>";
+        }else{
+  	       $MaxID = mysqli_query($db, "SELECT MAX(id) FROM MaxPersonID");
+  	       if(!$MaxID){
+  		         echo '<p>' . mysqli_error($db) . '</p>';
+  	       }
+
+  	        //Update our max id
+           $Max_Row = mysqli_fetch_array($MaxID, MYSQLI_NUM);
+  	       $new_MaxID = $Max_Row[0] + 1;
+           $db_fname = mysqli_real_escape_string($db, $db_fname);
+           $db_lname = mysqli_real_escape_string($db, $db_lname);
+
+  	       if($db_identity == "actor"){
+  		         if($db_dod=="")
+  				         $dbQuery = "INSERT INTO Actor (id, last, first, sex, dob, dod) VALUES ('$new_MaxID', '$db_lname', '$db_fname', '$db_gender', '$db_dob', NULL)";
+  			       else
+  				         $dbQuery = "INSERT INTO Actor (id, last, first, sex, dob, dod) VALUES ('$new_MaxID', '$db_lname', '$db_fname', '$db_gender', '$db_dob', '$db_dod')";
+
+      	   }else if ($db_identity =="director"){
+  		         if($db_dod=="")
+  					       $dbQuery = "INSERT INTO Director (id, last, first, sex, dob, dod) VALUES ('$new_MaxID', '$db_lname', '$db_fname', '$db_gender', '$db_dob', NULL)";
+  				     else
+  					       $dbQuery = "INSERT INTO Director (id, last, first, sex, dob, dod) VALUES ('$new_MaxID', '$db_lname', '$db_fname', '$db_gender', '$db_dob', '$db_dod')";
+  	       }
+
+           $queryResult = mysqli_query($db, $dbQuery);
+
+           if(!$queryResult){
+             echo '<p>' . mysqli_error($db) . '</p>';
+           }
+           else{
+             //update the max actor table
+             mysqli_free_result($queryResult);
+             $update_Query = "UPDATE MaxPersonID SET id=$new_MaxID WHERE id=$Max_Row[0]";
+             $queryResult = mysqli_query($db, $update_Query);
+             if(!$queryResult){
+               echo '<p>' . mysqli_error($db) . '</p>';
+             }else{
+                  echo '<p> Successfully added a new a new ' . $db_identity . ' with an ID ' . $newMaxID;
+                  mysqli_free_result($queryResult);
+             }
+          }
+        }
+       }
+       mysqli_close($db);
+       //get the query results and analyze it
+       ?>
 	</div>
 </div>
-
-
-
-
-
-<?php
-	echo "<h1> Hello </h1>";
-	$db = mysqli_connect('localhost', 'cs143', '', 'CS143');
-	if(!$db){
-		echo "<p> Error: Unbale to connect to MySQL. </p>";
-		echo "<p> Error Message: " . mysqli_connect_error(). "</p>";
-	}
-
-	// get values by id
-	$db_identity = trim($_POST["identity"]);
-	$db_fname = trim($_POST["fname"]);
-	$db_lname = trim($_POST["lname"]);
-	$db_gender = trim($_POST["gender"]);
-	$db_dob = trim($_POST["dob"]);
-	$db_dod = trim($_POST["dod"]);
-
-	// Do Add Constraints checking
-	$DobDate = date_parse($db_dob);
-	$DodDate = date_parse($db_dod);
-
-
-
-	// Query to maxperson id
-	$MaxID = mysqli_query($db, "SELECT MAX(id) FROM MaxPersonID");
-	if(!$MaxID){
-		echo '<p>' . mysqli_error($db) . '</p>';
-	}
-
-	//Update our max id
-	$Max_Row = mysqli_fetch_array($MaxID, MYSQLI_NUM);
-	$new_MaxID = $Max_Row[0] + 1;
-
-
-
-	//When everything is correct
-
-	//The name might has single quote. e.g. Shaq O'Neal
-	$db_fname = mysqli_escape_string($db_fname);
-	$db_lname = mysqli_escape_string($db_lname);
-
-	if($db_identity == "actor"){
-		if($dbDOD=="")
-				$dbQuery = "INSERT INTO Actor (id, last, first, sex, dob, dod) VALUES('$newMaxID', '$dbLast', '$dbFirst', '$dbSex', '$dbDOB', NULL)";
-			else
-				$dbQuery = "INSERT INTO Actor (id, last, first, sex, dob, dod) VALUES('$newMaxID', '$dbLast', '$dbFirst', '$dbSex', '$dbDOB', '$dbDOD')";
-
-	}else if ($db_identity =="director"){
-		if($dbDOD=="")
-					$dbQuery = "INSERT INTO Director (id, last, first, sex, dob, dod) VALUES('$newMaxID', '$dbLast', '$dbFirst', '$dbSex', '$dbDOB', NULL)";
-				else
-					$dbQuery = "INSERT INTO Director (id, last, first, sex, dob, dod) VALUES('$newMaxID', '$dbLast', '$dbFirst', '$dbSex', '$dbDOB', '$dbDOD')";
-
-	}
-
-?>
-
-
-
-
-
 
 
 

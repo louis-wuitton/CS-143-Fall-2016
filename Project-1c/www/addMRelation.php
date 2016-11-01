@@ -50,29 +50,61 @@
                 </div>
     </div>
 </nav>
-    
+
+<?php
+      $db = mysqli_connect("localhost", "cs143", "", "CS143");
+      if(!$db){
+        echo "<p> Error: Unbale to connect to MySQL. </p>";
+        echo "<p> Error Message: " . mysqli_connect_error(). "</p>";
+      }
+      $MovieQuery = mysqli_query("SELECT id, title, year FROM Movie ORDER BY title ASC");
+      if(!$MovieQuery){
+        echo "<p> Something goes wrong </p>";
+      }
+      $movie_options="";
+      while ($row=mysqli_fetch_array($MovieQuery)){
+        $mvid = $row["id"];
+        $title = $row["title"];
+        $year = $row["year"];
+        $movie_options .= "<option value=\"mvid\"> " . $title . "(" . $year . ")</option>";
+      }
+
+      $director_options="";
+      $ActorQuery = mysqli_query($db, "SELECT id, first, last, dob FROM Actor ORDER BY first ASC")
+      while ($row=mysqli_fetch_array($MovieQuery)){
+        $aid = $row["id"];
+        $first = $row["first"];
+        $last = $row["last"];
+        $dob = $row["dob"];
+        $actor_options .= "<option value=\"aid\"> " . $first . " ". $last + "(" . $dob . ")</option>";
+      }
+ ?>
+
+
 <div class="container">
 <h1>Create Movie/Actor Relation </h1>
 	<div class="well necomponent">
-	<form method='post' action='do_search.php' class='form-horizontal'>    
+	<form method='post' action='do_search.php' class='form-horizontal'>
 	   <center><legend>You could add movies/actors relation here</legend></center>
-	   
+
 	   <div class="form-group">
 		<label for='title' class="col-sm-4 control-label">Movie Title: </label>
 		<div class="col-sm-5 col-offset-sm-2">
-			<select class=form-control" name="title"> 
+			<select class="form-control" name="title">
+        <?=$movie_options?>
 			</select>
-		</div> 
+		</div>
 	   </div>
 	   <div class="form-group">
 	   <label for='actor' class="col-sm-4 control-label">Actor: </label>
 		<div class="col-sm-5 col-offset-sm-2">
-			<select class=form-control" name="actor"> 
+			<select class="form-control" name="actor">
+        <?=$actor_options?>
 			</select>
-		</div> 
+		</div>
 	   </div>
 
-           
+
            <div class="form-group">
 	   <label for="searching" class="col-sm-4 control-label">Role: </label>
 	   <div class="col-sm-5 col-offset-sm-2">
@@ -85,12 +117,23 @@
 		</div>
 	   </div>
 	</form>
-	</div>
-</div> 
 
-   
- 
+    <?php
+      //make query here
+      $selected_movie = $_POST("title");
+      $selected_actor = $_POST("actor");
+      //so something here
+
+     ?>
+
+
+
+	</div>
 </div>
-    
+
+
+
+</div>
+
 </body>
 </html>

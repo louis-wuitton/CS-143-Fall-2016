@@ -50,11 +50,61 @@
                 </div>
     </div>
 </nav>
-    
+
 <div class="container">
 <h1>Actor Inforamtion Page</h1>
+  <?php
+    $db = mysqli_connect('localhost', 'cs143', '', 'CS143');
+    if(!$db){
+      echo "<p> Error: Unbale to connect to MySQL. </p>";
+      echo "<p> Error Message: " . mysqli_connect_error(). "</p>";
+    }
+    $actorID = trim($_GET["id"]);
+    if($actorID){
+      echo "<h3> Actor Information is: </h3>";
+      $actorQuery = "SELECT first, last, sex, dob, dod FROM Actor WHERE id = $actorID";
+      $actorResults = mysqli_query($db, $actorQuery);
+      if(!$actorResults){
+        echo '<p>' . mysqli_error($db) . '</p>';
+      }else{
+        echo "<div class =\"table-responsive\">";
+        echo "<table class=\"table table-bordered\">";
+        echo "<thead> <tr> <td>Name</td> <td>Sex</td> <td>Date Of Birth</td> <td>Date Of Death</td> </tr> </thead>";
+        echo "<tbody>";
+        //print out the table for actors
+        while($actorrow = mysqli_fetch_assoc($actorResults)){
+          echo "<tr>"
+          echo "<td> " . $actorrow["first"] . $actorrow["last"]."</td>";
+          echo "<td> " . $actorrow["sex"]."</td>";
+          echo "<td> " . $actorrow["dob"]."</td>";
+          echo "<td> " . $actorrow["dod"]."</td>";
+          echo "</tr>";
+        }
+        mysqli_free_result($actorResults);
+
+        echo "<h3> Actor Movies And Role: </h3>";
+        $roleQuery = "SELECT M1.role, M2.title, M2.year, M2.id FROM MovieActor M1, Movie M2 WHERE M1.mid = M2.id AND M1.aid = $actorID ORDER BY M2.year DESC";
+        $roleResults = mysqli_query($db, $roleQuery);
+        echo "<div class =\"table-responsive\">";
+        echo "<table class=\"table table-bordered\">";
+        echo "<thead> <tr> <td>role</td> <td>Movie Title</td> </tr> </thead>";
+        echo "<tbody>";
+
+        while($rolerow = mysqli_fetch_assoc($roleResults)){
+          echo "<tr>"
+          echo "<td> " . $rolerow["role"] . "</td>";
+          echo "<a href=\"show_a.php?id=".$rolerow["id"]."\" >".$rolerow["role"]. "</a> </td>";
+          echo "</tr>";
+        }
+        echo "<br>";
+        mysqli_free_result($roleResults);
+
+      }
+    }
+   ?>
+
 	<div class="well necomponent">
-	<form method='post' action='do_search.php' class='form-horizontal'>    
+	<form method='post' action='do_search.php' class='form-horizontal'>
 	   <center><legend>Please search for actors here</legend></center>
 	   <div class="form-group">
 	   <label for="searching" class="col-sm-4 control-label">Search:</label>
@@ -69,11 +119,11 @@
 	   </div>
 	</form>
 	</div>
-</div> 
-
-   
- 
 </div>
-    
+
+
+
+</div>
+
 </body>
 </html>
