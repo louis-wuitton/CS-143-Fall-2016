@@ -16,7 +16,7 @@
 
 <body data-spy="scroll" data-target=".navbar" data-offset="50">
 
-<nav class="navbar navbar-defaul">
+<nav class="navbar navbar-default">
       <div class="container-fluid">
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
@@ -34,8 +34,8 @@
                             <ul class="dropdown-menu" role="menu">
                                 <li><a href="addperson.php">Add Actor/Director</a></li>
                                 <li><a href="addmovie.php">Add Movie Information</a></li>
-                                <li><a href="addMRelation.php">Add Movie/Actor Relation</a></li>
-                                <li><a href="addPrelation.php">Add Movie/Director Relation</a></li>
+                                <li><a href="addActorMovie.php">Add Movie/Actor Relation</a></li>
+                                <li><a href="addDirectorMovie.php">Add Movie/Director Relation</a></li>
                             </ul>
                         </li>
                         <li class="dropdown">

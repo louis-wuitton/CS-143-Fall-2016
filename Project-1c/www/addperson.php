@@ -33,8 +33,8 @@
                             <ul class="dropdown-menu" role="menu">
                                 <li><a href="#">Add Actor/Director</a></li>
                                 <li><a href="addmovie.php">Add Movie Information</a></li>
-                                <li><a href="addMRelation.php">Add Movie/Actor Relation</a></li>
-                                <li><a href="addPrelation.php">Add Movie/Director Relation</a></li>
+                                <li><a href="addActorMovie.php">Add Movie/Actor Relation</a></li>
+                                <li><a href="addDirectorMovie.php">Add Movie/Director Relation</a></li>
                             </ul>
                         </li>
                         <li class="dropdown">
@@ -84,9 +84,9 @@
 
 	     <div class="form-group">
 	     	<label for="dateofbirth" class="col-sm-3 control-label">Date of Birth</label>
-		<div class="col-sm-3">
-			<input type="text" class="form-control" name="dob">
-		</div>
+		      <div class="col-sm-3">
+			         <input type="text" class="form-control" name="dob">
+		     </div>
 		<label for="dateofdeath" class="col-sm-3 control-label" name="dod">Date of Death</label>
 		<div class="col-sm-3">
 			<input type="text" class="form-control" name="dod">

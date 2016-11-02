@@ -48,8 +48,7 @@
 		if(mysqli_num_rows($rs) != 0){
 			while($fieldinfo=mysqli_fetch_field($rs)){
 				echo '<td><b>' . $fieldinfo->name . '</b></td>';
-			}
-		
+			}	
 			$num_of_fields = mysqli_num_fields($rs);
 		
 		
