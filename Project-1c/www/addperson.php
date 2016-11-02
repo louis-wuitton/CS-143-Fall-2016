@@ -55,13 +55,13 @@
     <div class="well bs-component">
       <form method="post" action="addperson.php" class="form-horizontal">
             <center><legend>Please enter the following </legend></center>
-            <div class="form-group"><center>
-	      	<label class="radio-inline">
-              	<input type="radio" name="identity" value="actor" checked>Actor
-              	</label>
-	      	<label class="radio-inline">
-	      	<input type="radio" name="identity" value="director">Director<br>
-              	</label></center>
+          <div class="form-group"><center>
+	      	    <label class="radio-inline">
+                  <input type="radio" name="identity" value="actor" >Actor
+              </label>
+	      	    <label class="radio-inline">
+	      	          <input type="radio" name="identity" value="director">Director<br>
+              </label></center>
 	     </div>
 	     <div class="form-group">
 		 <label for="firstname" class="col-sm-3 control-label">First Name </label>
@@ -73,13 +73,14 @@
 			<input type="text" class="form-control" name="lname">
 		 </div>
 	     </div>
+
 	     <div class="form-group"><center>
-		<label class="radio-inline">
-		  <input type="radio" name="gender" value="Male" checked>Male
-		</label>
-		<label class="radio-inline">
-		  <input type="radio" name="gender" value="Female">Female</label>
-		</label></center>
+		       <label class="radio-inline">
+		           <input type="radio" name="gender" value="Male" >Male
+		      </label>
+		      <label class="radio-inline">
+		          <input type="radio" name="gender" value="Female">Female</label>
+		      </label></center>
 	     </div>
 
 	     <div class="form-group">
@@ -153,6 +154,7 @@
            $queryResult = mysqli_query($db, $dbQuery);
 
            if(!$queryResult){
+             echo "Problems happened line 157";
              echo '<p>' . mysqli_error($db) . '</p>';
            }
            else{
@@ -161,6 +163,7 @@
              $update_Query = "UPDATE MaxPersonID SET id=$new_MaxID WHERE id=$Max_Row[0]";
              $queryResult = mysqli_query($db, $update_Query);
              if(!$queryResult){
+               echo "Problems happened line 166";
                echo '<p>' . mysqli_error($db) . '</p>';
              }else{
                   echo '<p> Successfully added a new a new ' . $db_identity . ' with an ID ' . $newMaxID;

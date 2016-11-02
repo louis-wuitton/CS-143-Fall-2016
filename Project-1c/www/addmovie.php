@@ -150,7 +150,7 @@
         $new_MaxID = $max_row[0] + 1;
 
         $db_title = mysqli_real_escape_string($db, $db_title);
-        echo "Look at the new string " . $db_title . "\n";
+      
 
         $query = "INSERT INTO Movie (id, title, year, rating, company) VALUES('$new_MaxID', '$db_title', '$db_year', '$db_rating', '$db_company')";
         $rs = mysqli_query($db, $query);

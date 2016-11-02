@@ -25,10 +25,12 @@ CREATE TABLE Director (
 	id INT NOT NULL,
 	last VARCHAR(20),
 	first VARCHAR(20),
+	sex VARCHAR(6) NOT NULL,
 	dob DATE,
 	dod DATE,
 	PRIMARY KEY(id),
-	CHECK (id > 0 AND id <= MaxMovieID(id) + 1)
+	CHECK (id > 0 AND id <= MaxMovieID(id) + 1),
+	CHECK (sex = 'Male' OR sex = 'Female');
 ) ENGINE = INNODB;
 
 
