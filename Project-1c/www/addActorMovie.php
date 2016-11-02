@@ -144,7 +144,7 @@
           $selected_actor = mysqli_real_escape_string($db, $selected_actor);
           $selected_movie = mysqli_real_escape_string($db, $selected_movie);
           $new_role = mysqli_real_escape_string($db, $new_role);
-          $addRole = "INSERT INTO MovieActor (mid, aid, role) VALUES ($selected_movie, $selected_actor, $new_role)";
+          $addRole = "INSERT INTO MovieActor (mid, aid, role) VALUES ('$selected_movie', '$selected_actor', '$new_role')";
           $insertResult = mysqli_query($db, $addRole);
           if(!$insertResult){
             echo '<p>'.mysqli_error($db).'</p>';

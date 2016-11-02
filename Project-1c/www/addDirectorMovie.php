@@ -52,10 +52,10 @@
 </nav>
 
 <div class="container">
-<h1>Create Movie/Actor Relation </h1>
+<h1>Create Movie/Director Relation </h1>
 	<div class="well necomponent">
 	<form method='post' action='#' class='form-horizontal'>
-	   <center><legend>You could add movies/actors relation here</legend></center>
+	   <center><legend>You could add movies/directors relation here</legend></center>
 	   <div class="form-group">
 		     <label for='title' class="col-sm-4 control-label">Movie Title: </label>
 		     <div class="col-sm-5 col-offset-sm-2">
@@ -90,7 +90,7 @@
 	   </div>
 
 	   <div class="form-group">
-	       <label for='actor' class="col-sm-4 control-label">Director: </label>
+	       <label for='director' class="col-sm-4 control-label">Director: </label>
 		     <div class="col-sm-5 col-offset-sm-2">
                 <?php
                   $DirectorQuery = "SELECT id, first, last, dob FROM Director ORDER BY first ASC";
@@ -118,12 +118,6 @@
 		    </div>
 	  </div>
 
-    <div class="form-group">
-	       <label for="searching" class="col-sm-4 control-label">Role: </label>
-	       <div class="col-sm-5 col-offset-sm-2">
-	          <input type="text" class="form-control" name="role">
-	       </div>
-    </div>
 
 	  <div class="form-group">
 		    <div class="col-sm-4 col-sm-offset-5">
@@ -134,17 +128,14 @@
     <?php
         $selected_director = $_POST["director"];
         $selected_movie = $_POST["movie"];
-        $new_role = $_POST["role"];
 
-        if($selected_movie == "" && $selected_director == "" && $new_role= ""){
+        if($selected_movie == "" && $selected_director == "" ){
+            echo "<p>Please specify a Movie/Director relation";
 
-        }else if ($new_role == ""){
-          echo "<p> Please specify a role </p>";
         }else{
           $selected_director = mysqli_real_escape_string($db, $selected_director);
           $selected_movie = mysqli_real_escape_string($db, $selected_movie);
-          $new_role = mysqli_real_escape_string($db, $new_role);
-          $addRole = "INSERT INTO MovieDirector (mid, aid, role) VALUES ($selected_movie, $selected_director, $new_role)";
+          $addRole = "INSERT INTO MovieDirector (mid, did) VALUES ('$selected_movie', '$selected_director')";
           $insertResult = mysqli_query($db, $addRole);
           if(!$insertResult){
             echo '<p>'.mysqli_error($db).'</p>';
