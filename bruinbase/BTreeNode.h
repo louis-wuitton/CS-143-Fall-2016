@@ -20,6 +20,7 @@ class BTLeafNode {
   public:
     //constructor
     BTLeafNode();
+    void print();
    /**
     * Insert the (key, rid) pair to the node.
     * Remember that all keys inside a B+tree node should be kept sorted.
@@ -106,8 +107,6 @@ class BTLeafNode {
     * that contains the node.
     */
     //Page Size is important, because it tells us whether we have overflow
-    int key_count;
-
     char buffer[PageFile::PAGE_SIZE];
 };
 
@@ -122,6 +121,7 @@ class BTNonLeafNode {
   public:
 
     BTNonLeafNode();
+    void print();
    /**
     * Insert a (key, pid) pair to the node.
     * Remember that all keys inside a B+tree node should be kept sorted.
@@ -130,6 +130,8 @@ class BTNonLeafNode {
     * @return 0 if successful. Return an error code if the node is full.
     */
     RC insert(int key, PageId pid);
+
+    RC returnFirstPid(PageId pid);
 
    /**
     * Insert the (key, pid) pair to the node
@@ -191,7 +193,6 @@ class BTNonLeafNode {
     * The main memory buffer for loading the content of the disk page
     * that contains the node.
     */
-    int key_count;
     char buffer[PageFile::PAGE_SIZE];
 };
 
