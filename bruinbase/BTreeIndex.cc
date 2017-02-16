@@ -10,6 +10,7 @@
 #include "BTreeIndex.h"
 #include "BTreeNode.h"
 #include <cstring>
+#include <stdio.h>
 
 using namespace std;
 
@@ -39,6 +40,7 @@ RC BTreeIndex::open(const string& indexname, char mode)
     if (error != 0){
       return error;
     }
+    m_mode = mode;
     if (pf.endPid() == 0){
       // So you just created the root node
       treeHeight = 0;
@@ -72,12 +74,13 @@ RC BTreeIndex::open(const string& indexname, char mode)
 RC BTreeIndex::close()
 {
     //Before closing the BTreeIndex we want to write the metadata into the buffer
-    memcpy(buffer, &rootPid, sizeof(PageId));
-    memcpy(buffer, &treeHeight, sizeof(int));
-
-    RC error = pf.write(0, buffer);
-    if (error != 0){
-      return error;
+    if (m_mode == 'w'){
+        memcpy(buffer, &rootPid, sizeof(PageId));
+        memcpy(buffer + sizeof(PageId), &treeHeight, sizeof(int));
+        RC error = pf.write(0, buffer);
+        if (error != 0){
+          return error;
+        }
     }
     return pf.close();
 }
@@ -90,11 +93,6 @@ RC BTreeIndex::close()
  */
 RC BTreeIndex::insert(int key, const RecordId& rid)
 {
-    //Finished the trivial case for insert
-    if(key < 0){
-      return RC_INVALID_ATTRIBUTE;
-    }
-
     RC error;
     //Basic case: when we need to create a new tree
     if (treeHeight == 0){
@@ -124,39 +122,26 @@ RC BTreeIndex::insertRecur(int key, const RecordId& rid, int height, int current
         error = leafNode.read(currentPid, pf);
 
         if (error != 0){
-          fprintf(stdout, "Error happened at line 130 %d\n", error);
           return error;
         }
         error = leafNode.insert(key, rid);
         if (error == 0){
-          //fprintf(stdout, "\nPrinting out all the keys in current node ");
-          //leafNode.print();
           leafNode.write(currentPid, pf);
           return 0;
         }else if (error == RC_NODE_FULL){
-          //We have overflow, thus we need to create a sibling
-          //fprintf(stdout, "\nOVERFLOW HAPPENED\n");
           BTLeafNode sibling;
           int siblingKey = -1;
 
-          //First set the pid
-          int newPid = pf.endPid();
-          sibling.setNextNodePtr(leafNode.getNextNodePtr());
-          leafNode.setNextNodePtr(newPid);
-
-
+          int tempNext = leafNode.getNextNodePtr();
           error = leafNode.insertAndSplit(key, rid, sibling, siblingKey);
-          /*
-          fprintf(stdout, "Sibling Key %d\n", siblingKey);
-          fprintf(stdout, "\nPrinting out all the keys in current node ");
-          leafNode.print();
-          fprintf(stdout, "\nPrinting out all the keys in sibling node ");
-          sibling.print();
-          */
           if (error != 0){
             fprintf(stdout, "Error happened at line 156 %d\n", error);
             return error;
           }
+          //First set the pid
+          int newPid = pf.endPid();
+          sibling.setNextNodePtr(tempNext);
+          leafNode.setNextNodePtr(newPid);
 
           specialKey = siblingKey;
           specialPid = newPid;
@@ -172,8 +157,9 @@ RC BTreeIndex::insertRecur(int key, const RecordId& rid, int height, int current
           }
           if(height == 1){
             BTNonLeafNode root;
-            root.initializeRoot(currentPid, siblingKey,newPid);
+            root.initializeRoot(currentPid, siblingKey, newPid);
             rootPid = pf.endPid();
+            root.setKeyCount(1);
             root.write(rootPid, pf);
             treeHeight++;
           }
@@ -191,10 +177,8 @@ RC BTreeIndex::insertRecur(int key, const RecordId& rid, int height, int current
           return error;
         }
 
-
-        PageId nextPid;
+        PageId nextPid = -1;
         nonLeaf.locateChildPtr(key, nextPid);
-
         error = insertRecur(key, rid, height+1, nextPid, specialKey, specialPid);
         if (error != 0){
           fprintf(stdout, "Error happened at line 200 %d\n", error);
@@ -204,30 +188,21 @@ RC BTreeIndex::insertRecur(int key, const RecordId& rid, int height, int current
           //We had overflow from previous one
           error = nonLeaf.insert(specialKey, specialPid);
 
-          /*
-          fprintf(stdout, "\nPrint out the non leaf node %d\n", currentPid);
-          nonLeaf.print();
-          */
           if(error == 0){
             nonLeaf.write(currentPid, pf);
+            specialKey = -1;
+            specialPid = -1;
             return 0;
           }
           else if(error == RC_NODE_FULL){
             BTNonLeafNode sibling;
 
-            int siblingKey;
-            nonLeaf.insertAndSplit(specialKey, specialPid, sibling, siblingKey);
+            int midKey;
+            nonLeaf.insertAndSplit(specialKey, specialPid, sibling, midKey);
             int newPid = pf.endPid();
-            specialKey = siblingKey;
+            specialKey = midKey;
             specialPid = newPid;
 
-            /*
-            fprintf(stdout, "\nPrint out the non leaf node %d\n", currentPid);
-            nonLeaf.print();
-
-            fprintf(stdout, "\nPrint out the sibling %d\n", newPid);
-            sibling.print();
-            */
             error = nonLeaf.write(currentPid, pf);
             if (error)
               return error;
@@ -236,8 +211,9 @@ RC BTreeIndex::insertRecur(int key, const RecordId& rid, int height, int current
               return error;
             if(height == 1){
               BTNonLeafNode root;
-              root.initializeRoot(currentPid, siblingKey,newPid);
+              root.initializeRoot(currentPid, midKey, newPid);
               rootPid = pf.endPid();
+              root.setKeyCount(1);
               root.write(rootPid, pf);
               treeHeight++;
             }
@@ -272,12 +248,9 @@ RC BTreeIndex::insertRecur(int key, const RecordId& rid, int height, int current
  */
 RC BTreeIndex::locate(int searchKey, IndexCursor& cursor)
 {
-    //assume that all the searchKey is greater than 0
-    if (searchKey < 0){
-      return RC_INVALID_ATTRIBUTE;
-    }
     if (rootPid != -1){
-        return locateRecur(searchKey, cursor, 1, rootPid);
+        int tempPid = rootPid;
+        return locateRecur(searchKey, cursor, 1, tempPid);
     }else{
         return RC_INVALID_FILE_FORMAT;
     }
@@ -290,13 +263,14 @@ RC BTreeIndex::locateRecur(int& searchKey, IndexCursor& cursor, int height, Page
         int eid;
         BTLeafNode leafNode;
         RC error = leafNode.read(next, pf);
+        //leafNode.print();
         error = leafNode.locate(searchKey, eid);
-        if(error != 0){
-          return error;
-        }else{
+        if(error == 0 || error == RC_NO_SUCH_RECORD){
           cursor.eid = eid;
           cursor.pid = next;
           return 0;
+        }else{
+          return error;
         }
       }
       BTNonLeafNode nonLeaf;
@@ -304,7 +278,6 @@ RC BTreeIndex::locateRecur(int& searchKey, IndexCursor& cursor, int height, Page
       if (error != 0){
         return error;
       }
-
       error = nonLeaf.locateChildPtr(searchKey, next);
       if (error == 0){
         return locateRecur(searchKey, cursor, height+1, next);

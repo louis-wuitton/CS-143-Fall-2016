@@ -84,6 +84,7 @@ class BTLeafNode {
     * @return the number of keys in the node
     */
     int getKeyCount();
+    void setKeyCount(int keyCount);
 
    /**
     * Read the content of the node from the page pid in the PageFile pf.
@@ -132,6 +133,7 @@ class BTNonLeafNode {
     RC insert(int key, PageId pid);
 
     RC returnFirstPid(PageId pid);
+    RC insertAfterOverflow(char* input, int insertlen);
 
    /**
     * Insert the (key, pid) pair to the node
@@ -171,6 +173,7 @@ class BTNonLeafNode {
     * @return the number of keys in the node
     */
     int getKeyCount();
+    void setKeyCount(int keyCount);
 
    /**
     * Read the content of the node from the page pid in the PageFile pf.
@@ -187,6 +190,9 @@ class BTNonLeafNode {
     * @return 0 if successful. Return an error code if there is an error.
     */
     RC write(PageId pid, PageFile& pf);
+
+    RC getFirstPid(PageId& pid);
+    RC setFirstPid(PageId& pid);
 
   private:
    /**

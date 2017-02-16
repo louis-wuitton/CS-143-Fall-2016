@@ -23,7 +23,7 @@ RC BTLeafNode::read(PageId pid, const PageFile& pf)
   //Read into the memory buffer
   RC rc;
   if ((rc = pf.read(pid, buffer)) != 0){
-    fprintf(stderr, "Failed to read a node from page file into the buffer with error code %d and pid %d \n", rc, pid);
+    fprintf(stderr, "Failed to read a node from page file into the buffer with error code %d and pid%d \n", rc, pid);
   }
   return rc;
 }
@@ -50,23 +50,21 @@ RC BTLeafNode::write(PageId pid, PageFile& pf)
  */
 
 //We want to fill into the a node as much keys as possible
+void BTLeafNode::setKeyCount(int keyCount){
+  int keyCountPos = PageFile::PAGE_SIZE - sizeof(PageId) - sizeof(int);
+  char* temp = buffer;
+  memcpy(temp+keyCountPos, &keyCount, sizeof(int));
+}
+//I decided to do this because the key could be 0
+
 
 int BTLeafNode::getKeyCount()
 {
-    int keySize = sizeof(int) + sizeof(RecordId);
-    int MAX_TOTAL_KEY = (PageFile::PAGE_SIZE - sizeof(PageId)) / keySize;
-    char* temp = buffer + sizeof(RecordId);
-    int count = 0;
-    for(int i = 0; i < MAX_TOTAL_KEY; i++){
-      int tempkey;
-      memcpy(&tempkey, temp, sizeof(int));
-      if (tempkey == 0){
-        break;
-      }
-      count ++;
-      temp += keySize;
-    }
-    return count;
+    int keyCount;
+    int keyCountPos = PageFile::PAGE_SIZE - sizeof(PageId) - sizeof(int);
+    char* temp = buffer;
+    memcpy(&keyCount, temp + keyCountPos, sizeof(int));
+    return keyCount;
 }
 
 
@@ -88,7 +86,7 @@ RC BTLeafNode::insert(int key, const RecordId& rid)
 {
       int keySize = sizeof(int) + sizeof(RecordId);
       //This should be 1020 / 12 = 85
-      int MAX_TOTAL_KEY = (PageFile::PAGE_SIZE - sizeof(PageId)) / keySize;
+      int MAX_TOTAL_KEY = (PageFile::PAGE_SIZE - sizeof(PageId) - sizeof(int)) / keySize;
       char* temp = buffer;
       int lastPid = getNextNodePtr();
     //  fprintf(stdout, "LastPID %d\n", lastPid);
@@ -115,7 +113,7 @@ RC BTLeafNode::insert(int key, const RecordId& rid)
         memcpy(temp + (insert_position+1)*keySize, helperBuffer, PageFile::PAGE_SIZE - (insert_position+1)*keySize);
         free(helperBuffer);
     }
-
+    setKeyCount(key_count + 1);
     setNextNodePtr(lastPid);
     key_count++;
     return 0;
@@ -142,8 +140,9 @@ RC BTLeafNode::insertAndSplit(int key, const RecordId& rid,
   }
 
   int keySize = sizeof(int) + sizeof(RecordId);
-  //This should be 1020 / 12 = 85
-  int MAX_TOTAL_KEY = (PageFile::PAGE_SIZE - sizeof(PageId)) / keySize;
+  //This should be 1016 / 12 = 84
+  //So when overflow happens the total number of keys is 85
+  int MAX_TOTAL_KEY = (PageFile::PAGE_SIZE - sizeof(PageId) - sizeof(int)) / keySize;
   char* helperBuffer = (char*) malloc(PageFile::PAGE_SIZE + keySize);
   int key_count = getKeyCount();
 
@@ -178,11 +177,10 @@ RC BTLeafNode::insertAndSplit(int key, const RecordId& rid,
     k++;
   }
   //Clear the buffer
-  key_count = 0;
   memset(buffer, '\0', PageFile::PAGE_SIZE);
   k = 0;
   temp1 = helperBuffer;
-  while(k < (MAX_TOTAL_KEY+1)/2){
+  while(k <= (MAX_TOTAL_KEY+1)/2){
     RecordId temp_rid;
     int temp_key;
     memcpy(&temp_rid, temp1, sizeof(RecordId));
@@ -191,7 +189,7 @@ RC BTLeafNode::insertAndSplit(int key, const RecordId& rid,
     insert(temp_key, temp_rid);
     k++;
   }
-
+  setKeyCount((MAX_TOTAL_KEY+1)/2 + 1);
   memcpy(&siblingKey, temp1 + sizeof(RecordId), sizeof(int));
 
   while(k < MAX_TOTAL_KEY + 1){
@@ -200,10 +198,10 @@ RC BTLeafNode::insertAndSplit(int key, const RecordId& rid,
     memcpy(&temp_rid, temp1, sizeof(RecordId));
     memcpy(&temp_key, temp1 + sizeof(RecordId), sizeof(int));
     temp1 += keySize;
-    //fprintf(stdout, "insert key %d ", temp_key);
     sibling.insert(temp_key, temp_rid);
     k++;
   }
+  sibling.setKeyCount((MAX_TOTAL_KEY + 1)/2); // set it to 42
   free(helperBuffer);
   return 0;
 }
@@ -213,7 +211,6 @@ void BTLeafNode::print(){
   int key_count = getKeyCount();
   int keySize = sizeof(int) + sizeof(RecordId);
   //This should be 1020 / 12 = 85
-  int MAX_TOTAL_KEY = (PageFile::PAGE_SIZE - sizeof(PageId)) / keySize;
   char* temp = buffer + sizeof(RecordId);
   for(int i = 0; i < key_count; i++){
     int currentKey;
@@ -264,12 +261,16 @@ RC BTLeafNode::locate(int searchKey, int& eid)
   }
   int tempKey;
   memcpy(&tempKey, temp + keySize*i + sizeof(RecordId), sizeof(int));
+
   if (tempKey < searchKey){
     insert_position = i+1;
   }else{
     insert_position = i;
   }
   eid = insert_position;
+  if(searchKey == tempKey){
+    return 0;
+  }
   return RC_NO_SUCH_RECORD;
 }
 
@@ -366,27 +367,24 @@ RC BTNonLeafNode::write(PageId pid, PageFile& pf)
   return rc;
 }
 
-/*
- * Return the number of keys stored in the node.
- * @return the number of keys in the node
- */
+
+
+
+void BTNonLeafNode::setKeyCount(int keyCount){
+  int keyCountPos = PageFile::PAGE_SIZE - sizeof(PageId) - sizeof(int);
+  char* temp = buffer;
+  memcpy(temp+keyCountPos, &keyCount, sizeof(int));
+}
+//I decided to do this because the key could be 0
+
+
 int BTNonLeafNode::getKeyCount()
 {
-  int keySize = sizeof(int) + sizeof(PageId);
-  int MAX_TOTAL_KEY = (PageFile::PAGE_SIZE - sizeof(PageId)) / keySize;
-  char* temp = buffer + sizeof(PageId);
-  int count = 0;
-  for(int i = 0; i < MAX_TOTAL_KEY; i++){
-    int tempkey;
-    memcpy(&tempkey, temp, sizeof(int));
-    if (tempkey == 0){
-      break;
-    }
-    count ++;
-    temp += keySize;
-  }
-
-  return count;
+    int keyCount;
+    int keyCountPos = PageFile::PAGE_SIZE - sizeof(PageId) - sizeof(int);
+    char* temp = buffer;
+    memcpy(&keyCount, temp + keyCountPos, sizeof(int));
+    return keyCount;
 }
 
 
@@ -399,7 +397,7 @@ int BTNonLeafNode::getKeyCount()
 RC BTNonLeafNode::insert(int key, PageId pid)
 {
     int keySize = sizeof(int) + sizeof(PageId);
-    int MAX_TOTAL_KEY  = (PageFile::PAGE_SIZE - sizeof(PageId)) / keySize;
+    int MAX_TOTAL_KEY  = (PageFile::PAGE_SIZE - sizeof(PageId) - sizeof(int)) / keySize;
     int key_count = getKeyCount();
 
     char* temp = buffer + sizeof(PageId);
@@ -408,8 +406,8 @@ RC BTNonLeafNode::insert(int key, PageId pid)
       return RC_NODE_FULL;
     }
     if(key_count == 0){
-      memcpy(temp, &pid, sizeof(PageId));
-      memcpy(temp + sizeof(PageId), &key, sizeof(int));
+      memcpy(temp, &key, sizeof(int));
+      memcpy(temp + sizeof(int), &pid, sizeof(PageId));
     }else{
       int i = 0;
       int j = key_count - 1;
@@ -446,9 +444,29 @@ RC BTNonLeafNode::insert(int key, PageId pid)
       free(helperBuffer);
     }
     //We need to check whether the
-    key_count++;
+    setKeyCount(key_count + 1);
     return 0;
 }
+
+
+RC BTNonLeafNode::getFirstPid(PageId& pid){
+  if (pid < 0)
+    return RC_INVALID_PID;
+  memcpy(&pid, buffer, sizeof(PageId));
+  return 0;
+}
+RC BTNonLeafNode::setFirstPid(PageId& pid){
+  if (pid < 0)
+    return RC_INVALID_PID;
+    memcpy(buffer, &pid, sizeof(PageId));
+    return 0;
+}
+
+/*
+RC BTNonLeafNode::insertAfterOverflow(char* input, int insertlen){
+  memcpy(buffer+sizeof(PageId), input, insertlen);
+}*/
+
 
 /*
  * Insert the (key, pid) pair to the node
@@ -461,23 +479,12 @@ RC BTNonLeafNode::insert(int key, PageId pid)
  * @return 0 if successful. Return an error code if there is an error.
  */
 
-RC BTNonLeafNode::getFirstPid(PageId& pid){
-  if (pid < 0)
-    return RC_INVALID_PID;
-  memcpy(pid, buffer, sizeof(PageId));
-  return 0;
-}
-RC BTNonLeafNode::setFirstPid(PageId& pid){
-  if (pid < 0)
-    return RC_INVALID_PID;
-    memcpy(buffer, pid, sizeof(PageId));
-    return 0;
-}
-
+ //There are 127 key-pid pairs in the non-leaf node
 RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, int& midKey)
 {
     int keySize = sizeof(int) + sizeof(PageId);
-    int MAX_TOTAL_KEY  = (PageFile::PAGE_SIZE - sizeof(PageId)) / keySize;
+    //This value is 127
+    int MAX_TOTAL_KEY  = (PageFile::PAGE_SIZE - sizeof(PageId) - sizeof(int)) / keySize;
 
     int key_count = getKeyCount();
 
@@ -522,10 +529,11 @@ RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, in
     //Determined the position to insert
     char* helperBuffer = (char*) malloc(PageFile::PAGE_SIZE + keySize);
 
-    //Skip the first page id
-    char* temp1 = helperBuffer + sizeof(PageId);
-    char* temp2 = buffer + sizeof(PageId);
-
+    char* temp1 = helperBuffer;
+    char* temp2 = buffer;
+    memcpy(temp1, temp2, sizeof(PageId));
+    temp1 += sizeof(PageId);
+    temp2 += sizeof(PageId);
 
     int k;
     for (k = 0; k < insert_position; k++){
@@ -534,14 +542,12 @@ RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, in
       temp2 += keySize;
     }
 
-
     //temp = buffer;
     memcpy(temp1, &key, sizeof(int));
     temp1 += sizeof(int);
     memcpy(temp1, &pid, sizeof(PageId));
     temp1 += sizeof(PageId);
     k++;
-
 
     while(k < MAX_TOTAL_KEY + 1){
       memcpy(temp1, temp2, keySize);
@@ -551,13 +557,11 @@ RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, in
     }
 
     //Clear the buffer
-    key_count = 0;
     memset(buffer, '\0', PageFile::PAGE_SIZE);
-
-
+    memcpy(buffer, helperBuffer, sizeof(PageId));
     k = 0;
-    temp1 = helperBuffer + 4;
-    while(k < (MAX_TOTAL_KEY+1)/2){
+    temp1 = helperBuffer + sizeof(PageId);
+    while(k < MAX_TOTAL_KEY/2 ){
       int temp_key;
       PageId temp_pid;
       memcpy(&temp_key, temp1, sizeof(int));
@@ -567,18 +571,26 @@ RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, in
       k++;
     }
 
+    setKeyCount(MAX_TOTAL_KEY/2);
     memcpy(&midKey, temp1 , sizeof(int));
+    int nextPid;
+    memcpy(&nextPid, temp1 + sizeof(int), sizeof(PageId));
+    sibling.setFirstPid(nextPid);
     temp1 += keySize;
+    k++;
 
-    while(k < MAX_TOTAL_KEY + 1){
+    RC error;
+
+    while(k < MAX_TOTAL_KEY+1){
       int temp_key;
       PageId temp_pid;
       memcpy(&temp_key, temp1, sizeof(int));
       memcpy(&temp_pid, temp1 + sizeof(int), sizeof(PageId));
       temp1 += keySize;
-      sibling.insert(temp_key, temp_pid);
+      error = sibling.insert(temp_key, temp_pid);
       k++;
     }
+    sibling.setKeyCount(MAX_TOTAL_KEY/2);
     free(helperBuffer);
     return 0;
 }
@@ -616,13 +628,14 @@ void BTNonLeafNode::print(){
   //print out the entire B+ Tree Node:
   int key_count = getKeyCount();
   int keySize = sizeof(int) + sizeof(PageId);
-  //This should be 1020 / 12 = 85
-  int MAX_TOTAL_KEY = (PageFile::PAGE_SIZE - sizeof(PageId)) / keySize;
-  char* temp = buffer + sizeof(PageId);
-  for(int i = 0; i < key_count; i++){
-    int currentKey;
-    memcpy(&currentKey, temp, sizeof(int));
-    fprintf(stdout, "%d ", currentKey);
+  //This should be 1020 / 12 = 8
+  char* temp = buffer;
+   //+ sizeof(PageId);
+  fprintf(stdout, "print out pid\n" );
+  for(int i = 0; i <= key_count; i++){
+    int currentPid;
+    memcpy(&currentPid, temp, sizeof(PageId));
+    fprintf(stdout, "%d ", currentPid);
     temp+=keySize;
   }
 }
